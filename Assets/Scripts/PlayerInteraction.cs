@@ -7,9 +7,12 @@ public class PlayerInteraction : MonoBehaviour
     public Transform playerCamera;
     public Collider playerBodyCollider;
 
-    [Header("3D UI Settings")]
-    public GameObject indicatorCanvas; // Drag the whole '3D_Indicator' here
-    public Text indicatorText;         // Drag the 'IndicatorText' here
+    [Header("3D UI Settings (World Space)")]
+    public GameObject indicatorCanvas;
+    public Text indicatorText;
+
+    [Header("Screen UI Settings (HUD)")]
+    public Text screenHintText; // NEW: Drag your new HUD_Text here!
 
     [Header("Raycast Settings")]
     public LayerMask interactableLayer;
@@ -50,7 +53,8 @@ public class PlayerInteraction : MonoBehaviour
     void Start()
     {
         if (trajectoryLine != null) trajectoryLine.enabled = false;
-        if (indicatorCanvas != null) indicatorCanvas.SetActive(false); // Hide marker on start
+        if (indicatorCanvas != null) indicatorCanvas.SetActive(false);
+        if (screenHintText != null) screenHintText.text = "";
     }
 
     void Update()
@@ -106,36 +110,47 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
-    // --- UPGRADED 3D UI METHOD ---
     void UpdateUI()
     {
         if (indicatorCanvas == null || indicatorText == null) return;
 
-        // 1. If holding cart, float the marker slightly above the handle
+        // 1. Holding Cart (Use 3D UI floating above handle)
         if (isHoldingCart)
         {
+            if (screenHintText != null) screenHintText.text = ""; // Clear HUD
+
             indicatorCanvas.SetActive(true);
-            indicatorCanvas.transform.position = cartHoldPoint.position + (Vector3.up * 0.3f);
+            indicatorText.color = Color.white;
+            indicatorCanvas.transform.position = cartHoldPoint.position + (playerCamera.up * 0.3f);
             FaceCamera();
             indicatorText.text = "[E]\nRelease Cart";
             return;
         }
 
-        // 2. If holding item, float the marker next to the item in your hand
+        // 2. Holding Item (Use Screen HUD, hide 3D UI!)
         if (isHoldingItem)
         {
-            indicatorCanvas.SetActive(true);
-            indicatorCanvas.transform.position = itemHoldPoint.position + (Vector3.right * 0.3f);
-            FaceCamera();
+            indicatorCanvas.SetActive(false); // Hide the floating 3D text
 
-            if (isChargingThrow)
-                indicatorText.text = "Release [Right-Click] Throw\n[Left-Click] Cancel";
-            else
-                indicatorText.text = "[Left-Click] Drop\n[Hold Right-Click] Throw";
+            if (screenHintText != null)
+            {
+                if (isChargingThrow)
+                {
+                    screenHintText.color = Color.yellow;
+                    screenHintText.text = "Release [Right-Click] to Throw   |   [Left-Click] to Cancel";
+                }
+                else
+                {
+                    screenHintText.color = Color.white;
+                    screenHintText.text = "[Left-Click] to Drop   |   [Hold Right-Click] to Throw";
+                }
+            }
             return;
         }
 
-        // 3. Not holding anything? Shoot the SphereCast to find objects in the world!
+        // 3. Not holding anything? Hide HUD, show 3D UI when looking at objects
+        if (screenHintText != null) screenHintText.text = ""; // Clear HUD
+
         RaycastHit hit;
         float maxCastDistance = Mathf.Max(cartRange, itemRange);
 
@@ -157,28 +172,24 @@ public class PlayerInteraction : MonoBehaviour
             if (validTarget)
             {
                 indicatorCanvas.SetActive(true);
-                // Snap the marker EXACTLY to where the raycast hit the object
-                // We pull it backward slightly (0.05f) so it doesn't clip inside the 3D model
+                indicatorText.color = Color.white;
                 indicatorCanvas.transform.position = hit.point - (playerCamera.forward * 0.05f);
                 FaceCamera();
                 return;
             }
         }
 
-        // 4. Looking at empty space, hide the marker
+        // 4. Looking at empty space, hide everything
         indicatorCanvas.SetActive(false);
     }
 
-    // Helper method to make the 3D Canvas face the player perfectly
     void FaceCamera()
     {
         indicatorCanvas.transform.LookAt(playerCamera);
-        // LookAt makes the Z-axis face the camera, which renders Canvas text backwards!
-        // We rotate it 180 degrees to fix it.
         indicatorCanvas.transform.Rotate(0, 180, 0);
     }
 
-    // --- EXISTING METHODS (UNCHANGED) ---
+    // --- PHYSICS METHODS (UNCHANGED) ---
     void ExecuteThrow()
     {
         isChargingThrow = false;
