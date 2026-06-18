@@ -1247,7 +1247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b732fdfb9d6145745b09794523df429f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  gameDuration: 10
+  gameDuration: 60
   itemsToCollect: 5
   mainMenuPanel: {fileID: 2092407484}
   inGameUIPanel: {fileID: 1044217925}
@@ -1255,6 +1255,7 @@ MonoBehaviour:
   losePanel: {fileID: 929848360}
   timerText: {fileID: 1536747398}
   shoppingListText: {fileID: 165368864}
+  collectedItems: []
   winTimeText: {fileID: 2145857455}
   spawner: {fileID: 827332506}
   currentShoppingList: []
@@ -10744,7 +10745,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
