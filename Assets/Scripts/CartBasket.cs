@@ -2,26 +2,44 @@ using UnityEngine;
 
 public class CartBasket : MonoBehaviour
 {
-    // When an item falls into the trigger box...
+    private GameManager gameManager;
+
+    private void Start()
+    {
+        // Automatically find the GameManager in the scene so you don't have to link it manually
+        gameManager = FindFirstObjectByType<GameManager>();
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Item"))
         {
-            // Make the item a child of the cart! 
-            // It still has physics, but now it teleports when the cart teleports.
+            // Keep your existing parenting logic so it doesn't clip through the floor
             other.transform.SetParent(transform.parent);
+
+            // Read the item's name and send it to the GameManager
+            ItemInfo info = other.GetComponent<ItemInfo>();
+            if (info != null && gameManager != null)
+            {
+                gameManager.ItemCollected(info.itemName);
+            }
         }
     }
 
-    // When the player grabs the item and pulls it out of the trigger box...
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Item"))
         {
-            // Unparent it so it becomes an independent object again
             if (other.transform.parent == transform.parent)
             {
                 other.transform.SetParent(null);
+            }
+
+            // If the item leaves the basket, tell the GameManager to un-check the box
+            ItemInfo info = other.GetComponent<ItemInfo>();
+            if (info != null && gameManager != null)
+            {
+                gameManager.ItemRemoved(info.itemName);
             }
         }
     }

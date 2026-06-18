@@ -1,7 +1,5 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using System;
+using UnityEngine;
 
 public class MouseMovement : MonoBehaviour
 {
@@ -16,8 +14,8 @@ public class MouseMovement : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
 
     }
 
